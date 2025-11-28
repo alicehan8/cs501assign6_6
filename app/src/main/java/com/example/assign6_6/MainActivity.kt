@@ -56,9 +56,6 @@ import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 
 class MainActivity : ComponentActivity() {
-    private lateinit var map: GoogleMap
-    private lateinit var mapFragment: SupportMapFragment
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -71,40 +68,35 @@ class MainActivity : ComponentActivity() {
 
 }
 
-@Composable
-fun HikingTrailMapTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = lightColorScheme(),
-        content = content
-    )
-}
 
 @Composable
 fun HikingMapScreen() {
     // Trail coordinates (example: mountain hiking trail)
     val trailPoints = remember {
         listOf(
-            LatLng(37.7749, -122.4194),
-            LatLng(37.7769, -122.4174),
-            LatLng(37.7789, -122.4154),
-            LatLng(37.7809, -122.4134),
-            LatLng(37.7829, -122.4114)
+            LatLng(37.770352, -122.494247),
+            LatLng(37.770658, -122.494848),
+            LatLng(37.770689, -122.495419),
+            LatLng(37.771569, -122.495467),
+            LatLng(37.771553, -122.492495),
+            LatLng(37.770903, -122.493366),
+            LatLng(37.770352, -122.494247)
         )
     }
 
     // Park polygon coordinates
     val parkPolygon = remember {
         listOf(
-            LatLng(37.7729, -122.4244),
-            LatLng(37.7729, -122.4104),
-            LatLng(37.7849, -122.4104),
-            LatLng(37.7849, -122.4244)
+            LatLng(37.764235, -122.510355),
+            LatLng(37.766580, -122.453318),
+            LatLng(37.774148, -122.455745),
+            LatLng(37.771446, -122.510849)
         )
     }
 
     // Camera position
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(37.7789, -122.4174), 13f)
+        position = CameraPosition.fromLatLngZoom(parkPolygon.first(), 14f)
     }
 
     // Customization states
@@ -126,25 +118,28 @@ fun HikingMapScreen() {
             properties = MapProperties(isMyLocationEnabled = false),
             uiSettings = MapUiSettings(zoomControlsEnabled = true)
         ) {
-            // Polyline for hiking trail
-            Polyline(
-                points = trailPoints,
-                color = polylineColor,
-                width = polylineWidth,
-                onClick = {
-                    showTrailInfo = true
-                }
-            )
-
             // Polygon for park area
             Polygon(
                 points = parkPolygon,
                 fillColor = polygonFillColor,
                 strokeColor = polygonStrokeColor,
                 strokeWidth = polygonStrokeWidth,
+                clickable = true,
                 onClick = {
                     showParkInfo = true
                 }
+            )
+
+            // Polyline for hiking trail
+            Polyline(
+                points = trailPoints,
+                color = polylineColor,
+                width = polylineWidth,
+                clickable = true,
+                onClick = {
+                    showTrailInfo = true
+                },
+                zIndex = 2f
             )
         }
 
@@ -152,23 +147,23 @@ fun HikingMapScreen() {
         FloatingActionButton(
             onClick = { showCustomization = true },
             modifier = Modifier
-                .align(Alignment.BottomEnd)
+                .align(Alignment.BottomStart)
                 .padding(16.dp)
         ) {
-            Text("⚙️")
+            Text("Settings")
         }
 
         // Trail info dialog
         if (showTrailInfo) {
             InfoDialog(
-                title = "Mountain Hiking Trail",
+                title = "Spreckels Lake Loop",
                 description = """
-                    Distance: 2.5 miles
-                    Difficulty: Moderate
-                    Elevation Gain: 500 ft
-                    Estimated Time: 1.5 hours
+                    Distance: 0.4 miles
+                    Difficulty: Easy
+                    Elevation Gain: 0 ft
+                    Estimated Time: 0.5-1 hours
                     
-                    This scenic trail offers beautiful views of the city and bay area.
+                    This is a great spot for easy walks/strolls, meditate, read, and/or relax. Great for children and pets on leash.
                 """.trimIndent(),
                 onDismiss = { showTrailInfo = false }
             )
@@ -268,8 +263,7 @@ fun CustomizationDialog(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(24.dp)
-                    .verticalScroll(rememberScrollState()),
+                    .padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
@@ -388,9 +382,6 @@ fun ColorPicker(
         }
     }
 }
-
-@Composable
-fun rememberScrollState() = androidx.compose.foundation.rememberScrollState()
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
